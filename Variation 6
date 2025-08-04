@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>East Club Inventory Report – Final</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root {
+    --bg:#f1f4f9;
+    --card:#fff;
+    --shadow:0 24px 60px rgba(31,41,55,0.05);
+    --border:#e6ecf5;
+    --accent:#5f72ff;
+    --text:#1f2230;
+    --muted:#6e7a9a;
+    --error:#e03131;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;padding:0;background:var(--bg);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);}
+  .container{max-width:920px;margin:0 auto;padding:24px;}
+  .card{background:var(--card);border-radius:12px;padding:18px 24px;margin-bottom:20px;box-shadow:var(--shadow);}
+  h1{margin:0;font-size:28px;font-weight:700;}
+  h2{margin:12px 0 6px;font-size:20px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:4px;}
+  h3{margin:10px 0 4px;font-size:16px;font-weight:600;}
+  .flex{display:flex;gap:16px;flex-wrap:wrap;}
+  .half{flex:1;min-width:140px;}
+  label{display:block;font-weight:600;font-size:13px;margin-bottom:4px;}
+  input, textarea{width:100%;padding:10px 12px;border:1px solid #d9e2ec;border-radius:6px;font-size:14px;background:#fff;transition:border .2s;}
+  textarea{resize:vertical;}
+  .btn{background:var(--accent);color:#fff;border:none;padding:12px 20px;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;transition:filter .2s;margin-right:8px;}
+  .btn:hover{filter:brightness(1.05);}
+  .small{font-size:12px;color:var(--muted);}
+  .stepper{display:flex;gap:10px;margin-bottom:8px;font-size:12px;}
+  .step{padding:6px 12px;border-radius:999px;background:#e8edf8;color:#4d5b9e;}
+  .active-step{background:var(--accent);color:#fff;}
+  .hidden{display:none;}
+  .error{border:2px solid var(--error);}
+  .warning-text{color:var(--error);font-size:12px;margin-top:4px;}
+  .page{display:none;}
+  .page.active{display:block;}
+  .nav-buttons{margin-top:14px;display:flex;justify-content:space-between;align-items:center;}
+  .report-info{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;margin-top:6px;}
+  .badge{background:var(--accent);color:#fff;padding:6px 14px;border-radius:999px;font-size:11px;display:inline-block;}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px;page-break-inside:avoid;}
+  th{background:#f4f7fd;font-weight:600;padding:10px;text-align:left;border-bottom:1px solid var(--border);}
+  td{padding:8px;border-bottom:1px solid #edf2f7;text-align:center;}
+  .summary-box{background:#f8f9fc;border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:14px;font-size:14px;}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="intro">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <h1>East Club Inventory</h1>
+          <div class="small">Full-scale inventory with sleek PDF report including real-time Inter Miami game info. Created by Jorge Mendieta.</div>
+        </div>
+        <div class="badge">Premium</div>
+      </div>
+      <div class="flex" style="margin-top:12px;">
+        <div class="half">
+          <label for="counter-name">Counter Name <span style="color:var(--error);">*</span></label>
+          <input type="text" id="counter-name" placeholder="Your name" />
+        </div>
+        <div class="half">
+          <label>Start Time</label>
+          <input type="text" id="begin-time" readonly />
+        </div>
+        <div class="half">
+          <label>End Time</label>
+          <input type="text" id="end-time" readonly />
+        </div>
+      </div>
+      <div class="small" style="margin-top:6px;">You can move page-to-page freely; validation happens only on Submit.</div>
+      <div style="margin-top:14px;">
+        <button class="btn" id="start-btn">Start Inventory</button>
+        <div id="start-error" class="warning-text" style="display:none;">Name is required to begin.</div>
+      </div>
+    </div>
+
+    <div id="wizard" class="stepper hidden">
+      <div class="step active-step" data-step="0">Inside Cooler</div>
+      <div class="step" data-step="1">Field Seats Cooler</div>
+      <div class="step" data-step="2">SW Seats Cooler</div>
+      <div class="step" data-step="3">Bar</div>
+      <div class="step" data-step="4">End Report</div>
+    </div>
+
+    <div id="pages" class="hidden">
+      <div class="card page active" data-page="0">
+        <h2>East Club Inside Cooler</h2>
+        <div class="flex">
+          <div class="half">
+            <label>Splendor 250ML</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="east_splendor_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="east_splendor_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+          <div class="half">
+            <label>Wild Berry Poppi</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="east_wildberry_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="east_wildberry_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex" style="margin-top:10px;">
+          <div class="half">
+            <label>Raspberry Rose Poppi</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="east_raspberry_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="east_raspberry_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+          <div class="half">
+            <label>Strawberry Lemon Poppi</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="east_strawberry_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="east_strawberry_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex" style="margin-top:10px;">
+          <div class="half">
+            <label>Lemon Lime Poppi</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="east_lemonlime_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="east_lemonlime_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+          <div class="half">
+            <label>Doc Pop Poppi</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="east_docpop_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="east_docpop_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex" style="margin-top:10px;">
+          <div class="half">
+            <label>La Croix Guava</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="east_guava_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="east_guava_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+          <div class="half">
+            <label>La Croix Pure</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="east_pure_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="east_pure_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <label>La Croix Strawberry</label>
+          <div class="flex">
+            <div class="half"><input type="number" min="0" data-key="east_strawberryla_begin" placeholder="Beginning Count" /></div>
+            <div class="half"><input type="number" min="0" data-key="east_strawberryla_end" placeholder="Ending Count" /></div>
+          </div>
+        </div>
+        <div class="nav-buttons">
+          <div></div>
+          <div><button class="btn" id="next-0">Next &raquo;</button></div>
+        </div>
+      </div>
+
+      <div class="card page" data-page="1">
+        <h2>Field Seats Cooler</h2>
+        <div class="flex">
+          <div class="half">
+            <label>Splendor 250ML</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="field_splendor_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="field_splendor_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+          <div class="half">
+            <label>Lemon Lime Poppi</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="field_lemonlime_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="field_lemonlime_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex" style="margin-top:10px;">
+          <div class="half">
+            <label>Strawberry Lemon Poppi</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="field_strawberry_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="field_strawberry_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+          <div class="half">
+            <label>Heineken</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="field_heineken_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="field_heineken_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex" style="margin-top:10px;">
+          <div class="half">
+            <label>Ritz Crackers</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="field_ritz_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="field_ritz_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+          <div class="half">
+            <label>Chocolate Chips Ahoy</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="field_ahoy_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="field_ahoy_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+        </div>
+        <div class="nav-buttons">
+          <div><button class="btn" id="back-1">&laquo; Back</button></div>
+          <div><button class="btn" id="next-1">Next &raquo;</button></div>
+        </div>
+      </div>
+
+      <div class="card page" data-page="2">
+        <h2>SW Seats Cooler</h2>
+        <div class="flex">
+          <div class="half">
+            <label>Flow Water</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="sw_flow_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="sw_flow_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+          <div class="half">
+            <label>Lemon Lime Poppi</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="sw_lemonlime_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="sw_lemonlime_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex" style="margin-top:8px;">
+          <div class="half">
+            <label>Strawberry Lemon Poppi</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="sw_strawberry_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="sw_strawberry_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+          <div class="half">
+            <label>Heineken</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="sw_heineken_begin" placeholder="Beginning Count" /></div>
+              <div class="half"><input type="number" min="0" data-key="sw_heineken_end" placeholder="Ending Count" /></div>
+            </div>
+          </div>
+        </div>
+        <div class="nav-buttons">
+          <div><button class="btn" id="back-2">&laquo; Back</button></div>
+          <div><button class="btn" id="next-2">Next &raquo;</button></div>
+        </div>
+      </div>
+
+      <div class="card page" data-page="3">
+        <h2>East Club Bar</h2>
+
+        <!-- Mixers -->
+        <div class="summary-box" style="padding:14px;">
+          <h3 style="margin-top:0;">Mixers</h3>
+          <div class="flex">
+            <div class="half">
+              <label>Coke</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_coke_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_coke_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Sprite</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_sprite_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_sprite_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex" style="margin-top:8px;">
+            <div class="half">
+              <label>Diet Coke</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_dietcoke_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_dietcoke_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Orange Juice</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_orange_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_orange_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:8px;">
+            <label>Cranberry Juice</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="bar_cranberry_begin" placeholder="Beginning" /></div>
+              <div class="half"><input type="number" min="0" data-key="bar_cranberry_end" placeholder="Ending" /></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Beer -->
+        <div style="margin-top:14px;">
+          <h3>Beer</h3>
+          <div class="flex" style="gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Heineken 12oz Cans</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_heineken12_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_heineken12_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Heineken Silver 12oz Cans</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_heinekensilver_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_heinekensilver_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex" style="margin-top:8px;gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>La Tropical 12oz Cans</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_latropical_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_latropical_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Michelob Ultra 12oz Cans</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_michelob_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_michelob_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:8px;">
+            <label>Coors Light Cans</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="bar_coors_begin" placeholder="Beginning" /></div>
+              <div class="half"><input type="number" min="0" data-key="bar_coors_end" placeholder="Ending" /></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wine -->
+        <div style="margin-top:14px;">
+          <h3>Wine</h3>
+          <div class="flex" style="gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Trapiche Oak Cast (Chardonnay)</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_chardonnay_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_chardonnay_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Trapiche Oak Cast (Malbec)</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_malbec_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_malbec_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:8px;">
+            <label>Costa Pompa Sparkling</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="bar_sparkling_begin" placeholder="Beginning" /></div>
+              <div class="half"><input type="number" min="0" data-key="bar_sparkling_end" placeholder="Ending" /></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tequila & Premium -->
+        <div style="margin-top:14px;">
+          <h3>Tequila & Premium Spirits</h3>
+          <div class="flex" style="gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Casamigos Blanco</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_casamigos_blanco_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_casamigos_blanco_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Casamigos Reposado</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_casamigos_reposado_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_casamigos_reposado_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex" style="margin-top:8px;gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Espolon Blanco</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_espolon_blanco_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_espolon_blanco_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Espolon Reposado</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_espolon_reposado_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_espolon_reposado_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex" style="margin-top:8px;gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Espolon Anejo</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_espolon_anejo_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_espolon_anejo_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Patron Silver</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_patron_silver_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_patron_silver_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex" style="margin-top:8px;gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Don Julio Blanco</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_donjulio_blanco_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_donjulio_blanco_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Don Julio Reposado</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_donjulio_reposado_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_donjulio_reposado_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex" style="margin-top:8px;gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Don Julio 1942</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_donjulio_1942_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_donjulio_1942_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Gran Centenario Plata</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_centenario_plata_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_centenario_plata_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex" style="margin-top:8px;gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Gran Centenario Cristalino</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_centenario_cristalino_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_centenario_cristalino_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Gran Centenario Anejo</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_centenario_anejo_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_centenario_anejo_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:8px;">
+            <label>Teremana Anejo</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="bar_teremana_anejo_begin" placeholder="Beginning" /></div>
+              <div class="half"><input type="number" min="0" data-key="bar_teremana_anejo_end" placeholder="Ending" /></div>
+            </div>
+          </div>
+          <div style="margin-top:8px;">
+            <label>Teremana Blanco</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="bar_teremana_blanco_begin" placeholder="Beginning" /></div>
+              <div class="half"><input type="number" min="0" data-key="bar_teremana_blanco_end" placeholder="Ending" /></div>
+            </div>
+          </div>
+          <div style="margin-top:8px;">
+            <label>Clase Azul (note)</label>
+            <div class="flex">
+              <div class="half"><input type="text" data-key="bar_claseazul_begin" placeholder="Beginning note" /></div>
+              <div class="half"><input type="text" data-key="bar_claseazul_end" placeholder="Ending note" /></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Other Spirits -->
+        <div style="margin-top:14px;">
+          <h3>Other Spirits</h3>
+          <div class="flex" style="gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Ketel One Original</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_ketelone_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_ketelone_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Ketel One Cucumber Mint</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_ketelone_cucumber_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_ketelone_cucumber_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex" style="margin-top:8px;gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Ketel One Peach & Orange Blossom</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_ketelone_peach_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_ketelone_peach_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Ketel One Grapefruit & Rose</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_ketelone_grapefruit_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_ketelone_grapefruit_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex" style="margin-top:8px;gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Bombay Sapphire</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_bombay_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_bombay_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Tanqueray</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_tanqueray_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_tanqueray_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex" style="margin-top:8px;gap:16px;">
+            <div class="half">
+              <label>Johnnie Walker Black Label</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_jw_black_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_jw_black_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Johnnie Walker Blue Label</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_jw_blue_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_jw_blue_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex" style="margin-top:8px;gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Glenlivet 12</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_glenlivet_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_glenlivet_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Glenfiddich 12</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_glenfiddich_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_glenfiddich_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label>Macallan 12</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="bar_macallan_begin" placeholder="Beginning" /></div>
+              <div class="half"><input type="number" min="0" data-key="bar_macallan_end" placeholder="Ending" /></div>
+            </div>
+          </div>
+
+          <div class="flex" style="margin-top:8px;gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Bulleit Rye</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_bulleit_rye_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_bulleit_rye_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Bulleit Bourbon</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_bulleit_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_bulleit_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex" style="margin-top:8px;gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <label>Woodford Reserve</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_woodford_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_woodford_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+            <div class="half">
+              <label>Haig Club</label>
+              <div class="flex">
+                <div class="half"><input type="number" min="0" data-key="bar_haigclub_begin" placeholder="Beginning" /></div>
+                <div class="half"><input type="number" min="0" data-key="bar_haigclub_end" placeholder="Ending" /></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label>Jack Daniels</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="bar_jackdaniels_begin" placeholder="Beginning" /></div>
+              <div class="half"><input type="number" min="0" data-key="bar_jackdaniels_end" placeholder="Ending" /></div>
+            </div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label>Captain Morgan White</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="bar_captain_white_begin" placeholder="Beginning" /></div>
+              <div class="half"><input type="number" min="0" data-key="bar_captain_white_end" placeholder="Ending" /></div>
+            </div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label>Captain Morgan Spiced</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="bar_captain_spiced_begin" placeholder="Beginning" /></div>
+              <div class="half"><input type="number" min="0" data-key="bar_captain_spiced_end" placeholder="Ending" /></div>
+            </div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label>Captain Morgan Private Stock</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="bar_captain_private_begin" placeholder="Beginning" /></div>
+              <div class="half"><input type="number" min="0" data-key="bar_captain_private_end" placeholder="Ending" /></div>
+            </div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label>Ron Zacapa</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="bar_ronzacapa_begin" placeholder="Beginning" /></div>
+              <div class="half"><input type="number" min="0" data-key="bar_ronzacapa_end" placeholder="Ending" /></div>
+            </div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label>Fernet Branca Menta</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="bar_fernet_menta_begin" placeholder="Beginning" /></div>
+              <div class="half"><input type="number" min="0" data-key="bar_fernet_menta_end" placeholder="Ending" /></div>
+            </div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label>Fernet Branca</label>
+            <div class="flex">
+              <div class="half"><input type="number" min="0" data-key="bar_fernet_begin" placeholder="Beginning" /></div>
+              <div class="half"><input type="number" min="0" data-key="bar_fernet_end" placeholder="Ending" /></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-box">
+          <div class="flex" style="gap:16px;flex-wrap:wrap;">
+            <div class="half">
+              <div><strong>Confirmation:</strong> Counted all drinks and area cleaned and clear.</div>
+            </div>
+            <div class="half">
+              <label for="tips">Bar Tips ($) <span style="color:var(--error);">*</span></label>
+              <input type="number" id="tips" min="0" step="0.01" placeholder="Enter bar tips" />
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <div><button class="btn" id="back-3">&laquo; Back</button></div>
+          <div><button class="btn" id="next-3">Next &raquo;</button></div>
+        </div>
+      </div>
+
+      <div class="card page" data-page="4">
+        <h2>End of Game Report</h2>
+        <div class="flex">
+          <div class="half">
+            <label for="food-notes">Food Notes</label>
+            <textarea id="food-notes" rows="4" placeholder="Food summary..."></textarea>
+          </div>
+          <div class="half">
+            <label for="game-notes">Game Notes</label>
+            <textarea id="game-notes" rows="4" placeholder="Game summary..."></textarea>
+          </div>
+        </div>
+        <div class="nav-buttons" style="margin-top:14px;">
+          <div><button class="btn" id="back-4">&laquo; Back</button></div>
+          <div><button class="btn" id="submit-btn">Submit &raquo;</button></div>
+        </div>
+        <div id="submit-error" class="warning-text" style="display:none;">Please complete required fields before export.</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const stateKey='eastclub_inventory_state_v3_final';
+    const counterNameInput=document.getElementById('counter-name');
+    const beginTimeInput=document.getElementById('begin-time');
+    const endTimeInput=document.getElementById('end-time');
+    const startBtn=document.getElementById('start-btn');
+    const tipsInput=document.getElementById('tips');
+    const startError=document.getElementById('start-error');
+    const submitError=document.getElementById('submit-error');
+    const pages=Array.from(document.querySelectorAll('.page'));
+    const wizardSteps=Array.from(document.querySelectorAll('.step'));
+    const allInputs=Array.from(document.querySelectorAll('[data-key]'));
+
+    function nowStr(){ return new Date().toLocaleString(); }
+
+    function saveState(){
+      const state={
+        name: counterNameInput.value,
+        beginTime: beginTimeInput.value,
+        endTime: endTimeInput.value,
+        values:{},
+        tips: tipsInput.value,
+        foodNotes: document.getElementById('food-notes')?.value,
+        gameNotes: document.getElementById('game-notes')?.value
+      };
+      allInputs.forEach(i=> state.values[i.dataset.key]=i.value);
+      localStorage.setItem(stateKey, JSON.stringify(state));
+    }
+    function loadState(){
+      const raw=localStorage.getItem(stateKey);
+      if(!raw) return;
+      try{
+        const s=JSON.parse(raw);
+        counterNameInput.value=s.name||'';
+        beginTimeInput.value=s.beginTime||'';
+        endTimeInput.value=s.endTime||'';
+        tipsInput.value=s.tips||'';
+        if (document.getElementById('food-notes')) document.getElementById('food-notes').value=s.foodNotes||'';
+        if (document.getElementById('game-notes')) document.getElementById('game-notes').value=s.gameNotes||'';
+        allInputs.forEach(i=>{
+          if(s.values && s.values[i.dataset.key] !== undefined){
+            i.value=s.values[i.dataset.key];
+          }
+        });
+      }catch{}
+    }
+    function showPage(idx){
+      pages.forEach(p=>p.classList.remove('active'));
+      const target=pages.find(p=>parseInt(p.dataset.page)===idx);
+      if(target) target.classList.add('active');
+      wizardSteps.forEach(s=>s.classList.remove('active-step'));
+      const step=wizardSteps.find(s=>parseInt(s.dataset.step)===idx);
+      if(step) step.classList.add('active-step');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function validatePage(idx){
+      let ok=true;
+      const page=pages.find(p=>parseInt(p.dataset.page)===idx);
+      if(!page) return true;
+      const nums=page.querySelectorAll('input[type=number]');
+      nums.forEach(i=>{
+        if(i.value.trim()===''){
+          i.classList.add('error');
+          ok=false;
+        } else i.classList.remove('error');
+      });
+      if(idx===3){
+        if(tipsInput.value.trim()===''){
+          tipsInput.classList.add('error');
+          ok=false;
+        } else tipsInput.classList.remove('error');
+      }
+      return ok;
+    }
+
+    // navigation
+    document.getElementById('next-0')?.addEventListener('click', ()=>{ saveState(); showPage(1); });
+    document.getElementById('back-1')?.addEventListener('click', ()=>showPage(0));
+    document.getElementById('next-1')?.addEventListener('click', ()=>{ saveState(); showPage(2); });
+    document.getElementById('back-2')?.addEventListener('click', ()=>showPage(1));
+    document.getElementById('next-2')?.addEventListener('click', ()=>{ saveState(); showPage(3); });
+    document.getElementById('back-3')?.addEventListener('click', ()=>showPage(2));
+    document.getElementById('next-3')?.addEventListener('click', ()=>showPage(4));
+    document.getElementById('back-4')?.addEventListener('click', ()=>showPage(3));
+
+    startBtn.addEventListener('click', ()=>{
+      if(!counterNameInput.value.trim()){
+        startError.style.display='block';
+        return;
+      }
+      startError.style.display='none';
+      beginTimeInput.value=nowStr();
+      document.getElementById('wizard').classList.remove('hidden');
+      document.getElementById('pages').classList.remove('hidden');
+      saveState();
+      showPage(0);
+    });
+
+    document.body.addEventListener('input', saveState);
+    document.body.addEventListener('change', saveState);
+    loadState();
+
+    let gameInfo = {
+      opponent: 'Necaxa',
+      score: '2-2 (5-4 pens)',
+      date: 'Aug 2, 2025',
+      resultLine: 'Inter Miami vs Necaxa — 2-2 (5-4 on penalties), Aug 2, 2025'
+    };
+    async function fetchGameInfo(){
+      try {
+        const url = encodeURIComponent('https://www.reuters.com/sports/soccer/leagues-cup-roundup-lionel-messi-injured-inter-miami-top-necaxa-2025-08-03/');
+        const res = await fetch(`https://api.allorigins.win/raw?url=${url}`);
+        if (!res.ok) throw new Error('Fetch failed');
+        const text = await res.text();
+        if (text.includes('drew 2-2 and then edged Necaxa 5-4 in a penalty shootout')) {
+          gameInfo = {
+            opponent: 'Necaxa',
+            score: '2-2 (5-4 pens)',
+            date: 'Aug 2, 2025',
+            resultLine: 'Inter Miami vs Necaxa — 2-2 (5-4 on penalties), Aug 2, 2025'
+          };
+        }
+      } catch (e) {
+        console.warn('Using fallback game info', e);
+      }
+    }
+    fetchGameInfo();
+
+    document.getElementById('submit-btn')?.addEventListener('click', async ()=>{
+      submitError.style.display='none';
+      for (let i=0;i<=4;i++){
+        if(!validatePage(i)){
+          showPage(i);
+          submitError.textContent='Please complete required fields.';
+          submitError.style.display='block';
+          return;
+        }
+      }
+      if(!counterNameInput.value.trim()){
+        showPage(0);
+        startError.style.display='block';
+        return;
+      }
+      endTimeInput.value=nowStr();
+      saveState();
+      await buildAndExport();
+    });
+
+    async function buildAndExport(){
+      const stored=JSON.parse(localStorage.getItem(stateKey)||'{}');
+      const doc=document.createElement('div');
+      doc.style.fontFamily='system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif';
+      doc.style.padding='24px';
+      doc.style.background='#fff';
+      doc.style.color='var(--text)';
+      doc.style.maxWidth='800px';
+
+      const header=document.createElement('div');
+      header.style.display='flex';
+      header.style.justifyContent='space-between';
+      header.innerHTML=`
+        <div style="flex:1;">
+          <h1 style="margin:0;">East Club Inventory Report</h1>
+          <div style="margin-top:4px;font-size:12px;">Created by Jorge Mendieta</div>
+          <div style="margin-top:6px;font-size:13px;"><strong>Match:</strong> ${gameInfo.resultLine}</div>
+        </div>
+        <div style="text-align:right;font-size:12px;">
+          <div><strong>Date:</strong> ${new Date().toLocaleDateString()}</div>
+          <div><strong>Time:</strong> ${new Date().toLocaleTimeString()}</div>
+        </div>
+      `;
+      doc.appendChild(header);
+
+      const infoBar=document.createElement('div');
+      infoBar.className='report-info';
+      infoBar.innerHTML=`
+        <div><strong>Counter:</strong> ${counterNameInput.value}</div>
+        <div><strong>Start:</strong> ${beginTimeInput.value}</div>
+        <div><strong>End:</strong> ${endTimeInput.value}</div>
+        <div><strong>Bar Tips:</strong> $${(stored.tips||'0.00')}</div>
+      `;
+      doc.appendChild(infoBar);
+      doc.appendChild(document.createElement('hr'));
+
+      let grandTotal=0;
+      function addSection(title, keys, labelMap){
+        const section=document.createElement('div');
+        section.style.marginTop='14px';
+        const h2=document.createElement('h2');
+        h2.textContent=title;
+        section.appendChild(h2);
+        const table=document.createElement('table');
+        const thead=document.createElement('thead');
+        thead.innerHTML=`
+          <tr>
+            <th>Item</th><th style="text-align:center;">Begin</th><th style="text-align:center;">End</th><th style="text-align:center;">Consumed</th>
+          </tr>`;
+        table.appendChild(thead);
+        const tbody=document.createElement('tbody');
+        let subtotal=0;
+        for(let i=0;i<keys.length;i+=2){
+          const b=keys[i], e=keys[i+1];
+          const base=b.replace(/_(begin|end)$/,'');
+          const display=labelMap[base] || base.replace(/_/g,' ');
+          const beginVal=parseFloat((stored.values && stored.values[b])||0)||0;
+          const endVal=parseFloat((stored.values && stored.values[e])||0)||0;
+          const consumed=Math.max(0, beginVal-endVal);
+          subtotal+=consumed;
+          const tr=document.createElement('tr');
+          tr.innerHTML=`
+            <td style="text-align:left;">${display}</td>
+            <td>${beginVal}</td>
+            <td>${endVal}</td>
+            <td>${consumed}</td>
+          `;
+          tbody.appendChild(tr);
+        }
+        table.appendChild(tbody);
+        section.appendChild(table);
+        const subtotalDiv=document.createElement('div');
+        subtotalDiv.style.marginTop='6px';
+        subtotalDiv.style.fontWeight='600';
+        subtotalDiv.textContent=`Total consumed in ${title}: ${subtotal}`;
+        section.appendChild(subtotalDiv);
+        doc.appendChild(section);
+        grandTotal+=subtotal;
+      }
+
+      const mapInside={
+        'east_splendor':'Splendor 250ML',
+        'east_wildberry':'Wild Berry Poppi',
+        'east_raspberry':'Raspberry Rose Poppi',
+        'east_strawberry':'Strawberry Lemon Poppi',
+        'east_lemonlime':'Lemon Lime Poppi',
+        'east_docpop':'Doc Pop Poppi',
+        'east_guava':'La Croix Guava',
+        'east_pure':'La Croix Pure',
+        'east_strawberryla':'La Croix Strawberry'
+      };
+      const mapField={
+        'field_splendor':'Splendor 250ML',
+        'field_lemonlime':'Lemon Lime Poppi',
+        'field_strawberry':'Strawberry Lemon Poppi',
+        'field_heineken':'Heineken',
+        'field_ritz':'Ritz Crackers',
+        'field_ahoy':'Chocolate Chips Ahoy'
+      };
+      const mapSW={
+        'sw_flow':'Flow Water',
+        'sw_lemonlime':'Lemon Lime Poppi',
+        'sw_strawberry':'Strawberry Lemon Poppi',
+        'sw_heineken':'Heineken'
+      };
+      const mapMixers={
+        'bar_coke':'Coke',
+        'bar_sprite':'Sprite',
+        'bar_dietcoke':'Diet Coke',
+        'bar_orange':'Orange Juice',
+        'bar_cranberry':'Cranberry Juice'
+      };
+      const mapBeer={
+        'bar_heineken12':'Heineken 12oz Cans',
+        'bar_heinekensilver':'Heineken Silver 12oz Cans',
+        'bar_latropical':'La Tropical 12oz Cans',
+        'bar_michelob':'Michelob Ultra 12oz Cans',
+        'bar_coors':'Coors Light Cans'
+      };
+      const mapWine={
+        'bar_chardonnay':'Trapiche Oak Cast (Chardonnay)',
+        'bar_malbec':'Trapiche Oak Cast (Malbec)',
+        'bar_sparkling':'Costa Pompa Sparkling'
+      };
+      const mapTequila={
+        'bar_casamigos_blanco':'Casamigos Blanco',
+        'bar_casamigos_reposado':'Casamigos Reposado',
+        'bar_espolon_blanco':'Espolon Blanco',
+        'bar_espolon_reposado':'Espolon Reposado',
+        'bar_espolon_anejo':'Espolon Anejo',
+        'bar_patron_silver':'Patron Silver',
+        'bar_donjulio_blanco':'Don Julio Blanco',
+        'bar_donjulio_reposado':'Don Julio Reposado',
+        'bar_donjulio_1942':'Don Julio 1942',
+        'bar_centenario_plata':'Gran Centenario Plata',
+        'bar_centenario_cristalino':'Gran Centenario Cristalino',
+        'bar_centenario_anejo':'Gran Centenario Anejo',
+        'bar_teremana_anejo':'Teremana Anejo',
+        'bar_teremana_blanco':'Teremana Blanco'
+      };
+      const mapOther={
+        'bar_ketelone':'Ketel One Original',
+        'bar_ketelone_cucumber':'Ketel One Cucumber Mint',
+        'bar_ketelone_peach':'Ketel One Peach & Orange Blossom',
+        'bar_ketelone_grapefruit':'Ketel One Grapefruit & Rose',
+        'bar_bombay':'Bombay Sapphire',
+        'bar_tanqueray':'Tanqueray',
+        'bar_jw_black':'Johnnie Walker Black Label',
+        'bar_jw_blue':'Johnnie Walker Blue Label',
+        'bar_glenlivet':'Glenlivet 12',
+        'bar_glenfiddich':'Glenfiddich 12',
+        'bar_macallan':'Macallan 12',
+        'bar_bulleit_rye':'Bulleit Rye',
+        'bar_bulleit':'Bulleit Bourbon',
+        'bar_woodford':'Woodford Reserve',
+        'bar_haigclub':'Haig Club',
+        'bar_jackdaniels':'Jack Daniels',
+        'bar_captain_white':'Captain Morgan White',
+        'bar_captain_spiced':'Captain Morgan Spiced',
+        'bar_captain_private':'Captain Morgan Private Stock',
+        'bar_ronzacapa':'Ron Zacapa',
+        'bar_fernet_menta':'Fernet Branca Menta',
+        'bar_fernet':'Fernet Branca'
+      };
+
+      addSection('East Club Inside Cooler', [
+        'east_splendor_begin','east_splendor_end',
+        'east_wildberry_begin','east_wildberry_end',
+        'east_raspberry_begin','east_raspberry_end',
+        'east_strawberry_begin','east_strawberry_end',
+        'east_lemonlime_begin','east_lemonlime_end',
+        'east_docpop_begin','east_docpop_end',
+        'east_guava_begin','east_guava_end',
+        'east_pure_begin','east_pure_end',
+        'east_strawberryla_begin','east_strawberryla_end'
+      ], mapInside);
+      addSection('Field Seats Cooler', [
+        'field_splendor_begin','field_splendor_end',
+        'field_lemonlime_begin','field_lemonlime_end',
+        'field_strawberry_begin','field_strawberry_end',
+        'field_heineken_begin','field_heineken_end',
+        'field_ritz_begin','field_ritz_end',
+        'field_ahoy_begin','field_ahoy_end'
+      ], mapField);
+      addSection('SW Seats Cooler', [
+        'sw_flow_begin','sw_flow_end',
+        'sw_lemonlime_begin','sw_lemonlime_end',
+        'sw_strawberry_begin','sw_strawberry_end',
+        'sw_heineken_begin','sw_heineken_end'
+      ], mapSW);
+      addSection('Mixers', [
+        'bar_coke_begin','bar_coke_end',
+        'bar_sprite_begin','bar_sprite_end',
+        'bar_dietcoke_begin','bar_dietcoke_end',
+        'bar_orange_begin','bar_orange_end',
+        'bar_cranberry_begin','bar_cranberry_end'
+      ], mapMixers);
+      addSection('Beer', [
+        'bar_heineken12_begin','bar_heineken12_end',
+        'bar_heinekensilver_begin','bar_heinekensilver_end',
+        'bar_latropical_begin','bar_latropical_end',
+        'bar_michelob_begin','bar_michelob_end',
+        'bar_coors_begin','bar_coors_end'
+      ], mapBeer);
+      addSection('Wine', [
+        'bar_chardonnay_begin','bar_chardonnay_end',
+        'bar_malbec_begin','bar_malbec_end',
+        'bar_sparkling_begin','bar_sparkling_end'
+      ], mapWine);
+      addSection('Tequila & Premium Spirits', [
+        'bar_casamigos_blanco_begin','bar_casamigos_blanco_end',
+        'bar_casamigos_reposado_begin','bar_casamigos_reposado_end',
+        'bar_espolon_blanco_begin','bar_espolon_blanco_end',
+        'bar_espolon_reposado_begin','bar_espolon_reposado_end',
+        'bar_espolon_anejo_begin','bar_espolon_anejo_end',
+        'bar_patron_silver_begin','bar_patron_silver_end',
+        'bar_donjulio_blanco_begin','bar_donjulio_blanco_end',
+        'bar_donjulio_reposado_begin','bar_donjulio_reposado_end',
+        'bar_donjulio_1942_begin','bar_donjulio_1942_end',
+        'bar_centenario_plata_begin','bar_centenario_plata_end',
+        'bar_centenario_cristalino_begin','bar_centenario_cristalino_end',
+        'bar_centenario_anejo_begin','bar_centenario_anejo_end',
+        'bar_teremana_anejo_begin','bar_teremana_anejo_end',
+        'bar_teremana_blanco_begin','bar_teremana_blanco_end'
+      ], mapTequila);
+      addSection('Other Spirits', [
+        'bar_ketelone_begin','bar_ketelone_end',
+        'bar_ketelone_cucumber_begin','bar_ketelone_cucumber_end',
+        'bar_ketelone_peach_begin','bar_ketelone_peach_end',
+        'bar_ketelone_grapefruit_begin','bar_ketelone_grapefruit_end',
+        'bar_bombay_begin','bar_bombay_end',
+        'bar_tanqueray_begin','bar_tanqueray_end',
+        'bar_jw_black_begin','bar_jw_black_end',
+        'bar_jw_blue_begin','bar_jw_blue_end',
+        'bar_glenlivet_begin','bar_glenlivet_end',
+        'bar_glenfiddich_begin','bar_glenfiddich_end',
+        'bar_macallan_begin','bar_macallan_end',
+        'bar_bulleit_rye_begin','bar_bulleit_rye_end',
+        'bar_bulleit_begin','bar_bulleit_end',
+        'bar_woodford_begin','bar_woodford_end',
+        'bar_haigclub_begin','bar_haigclub_end',
+        'bar_jackdaniels_begin','bar_jackdaniels_end',
+        'bar_captain_white_begin','bar_captain_white_end',
+        'bar_captain_spiced_begin','bar_captain_spiced_end',
+        'bar_captain_private_begin','bar_captain_private_end',
+        'bar_ronzacapa_begin','bar_ronzacapa_end',
+        'bar_fernet_menta_begin','bar_fernet_menta_end',
+        'bar_fernet_begin','bar_fernet_end'
+      ], mapOther);
+
+      const endBlock=document.createElement('div');
+      endBlock.style.marginTop='22px';
+      endBlock.style.borderTop='1px solid var(--border)';
+      endBlock.style.paddingTop='14px';
+      endBlock.innerHTML=`
+        <div style="margin-bottom:6px;"><strong>Confirmation:</strong> Counted & cleaned</div>
+        <div style="margin-bottom:6px;"><strong>Food Notes:</strong> ${document.getElementById('food-notes').value||''}</div>
+        <div style="margin-bottom:6px;"><strong>Game Notes:</strong> ${document.getElementById('game-notes').value||''}</div>
+        <div style="margin-top:10px;font-size:16px;font-weight:700;">Grand Total Consumed: ${grandTotal}</div>
+      `;
+      doc.appendChild(endBlock);
+
+      const opt={
+        margin:[14,12,14,12],
+        filename:`EastClub_Report_${counterNameInput.value.replace(/\s+/g,'_')}.pdf`,
+        image:{type:'jpeg',quality:0.97},
+        html2canvas:{scale:1.5,useCORS:true},
+        pagebreak:{mode:['css','legacy'], avoid:['tr']},
+        jsPDF:{unit:'pt',format:'a4',orientation:'portrait'}
+      };
+      await html2pdf().set(opt).from(doc).toPdf().save();
+      localStorage.removeItem(stateKey);
+      window.location.reload();
+    }
+  });
+  </script>
+</body>
+</html>
